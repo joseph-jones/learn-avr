@@ -1,51 +1,47 @@
 #include <avr/io.h>
-#include <util/delay.h>
-
-#define POT 10000
+#include <avr/interrupt.h>
 
 // prepare ADC
 void InitADC()
 {
-  // Select Vref=AVcc
-  ADMUX |= _BV(REFS0);
+    // Select Vref=AVcc
+    ADMUX |= _BV(REFS0);
+    // use ADC0
+    ADMUX &= ~(_BV(MUX3) | _BV(MUX2) | _BV(MUX1) | _BV(MUX0));
 
-  // set prescaller to 128 and enable ADC
-  ADCSRA |= _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0) | _BV(ADEN);
+    // set prescaler to 128 and enable ADC
+    ADCSRA |= _BV(ADATE) | _BV(ADPS2) | _BV(ADIE) | _BV(ADPS1) | _BV(ADPS0) | _BV(ADEN);
+    ADCSRA |= _BV(ADSC);
 }
 
-// read ADC
-uint16_t ReadADC(uint8_t ADCchannel)
+ISR(ADC_vect)
 {
-  // Select ADCchannel with safety mask
-  ADMUX = (ADMUX & 0xF0) | (ADCchannel & 0x0F);
+    // update OCR1A after ADC conversion
+    OCR1A = 10 + (ADC * 60);
+}
 
-  // single conversion mode
-  ADCSRA |= _BV(ADSC);
-
-  // wait until ADC conversion is complete
-  while( ADCSRA & _BV(ADSC) );
-
-  return ADC;
+ISR(TIMER1_COMPA_vect)
+{
+    PORTB ^= _BV(PB5);
 }
 
 int main(void)
 {
-  double potval;
-  int i;
-  // set PORTB PIN5 to output
-  DDRB |= _BV(DDB5);
+    InitADC();
+    // set PORTB PIN5 for output
+    DDRB |= _BV(DDB5);
 
-  InitADC();
+    // setup 16-bit timer1
+    // CTC mode
+    // prescaler 64
+    TCCR1A |= _BV(COM1A1) | _BV(COM1A0);
+    TCCR1B |= _BV(CS10) | _BV(CS11) | _BV(WGM12);
+    TIMSK1 |= _BV(OCIE1A);
 
-  while(1)
-  {
-    potval = (double)ReadADC(0);
+    // Enable Interupts
+    sei();
 
-    for (i = 0; i < potval; ++i)
-    {
-    _delay_ms(1);
-    }
-    PORTB ^= _BV(PORTB5);
-  }
+
+    while(1);
 }
 
