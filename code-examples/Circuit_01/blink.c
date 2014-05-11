@@ -2,7 +2,7 @@
 #include <avr/interrupt.h>
 
 
-ISR(TIMER1_OVF_vect)
+ISR(TIMER1_COMPA_vect)
 {
     PORTB ^= _BV(PB5);
 }
@@ -12,9 +12,13 @@ int main(void)
     // set PORTB PIN5 for output
     DDRB |= _BV(DDB5);
 
-    // setup timer1 with prescaler 64
-    TCCR1B |= _BV(CS10) | _BV(CS11);
-    TIMSK1 |= _BV(TOIE1);
+    // setup 16-bit timer1
+    // CTC mode
+    // prescaler 64
+    TCCR1A |= _BV(COM1A1) | _BV(COM1A0);
+    TCCR1B |= _BV(CS10) | _BV(CS11) | _BV(WGM12);
+    TIMSK1 |= _BV(OCIE1A);
+    OCR1A = 15625;  // led blinks at 8Hz
 
     // Enable Interupts
     sei();
