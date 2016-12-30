@@ -1,5 +1,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 
 ISR(TIMER1_COMPA_vect)
@@ -20,9 +21,11 @@ int main(void)
     TIMSK1 |= _BV(OCIE1A);
     OCR1A = 15625;  // led blinks at 8Hz
 
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    sleep_enable();
     // Enable Interupts
     sei();
+    while (1) sleep_cpu();
+    sleep_disable();
 
-
-    while(1);
 }
