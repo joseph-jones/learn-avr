@@ -37,7 +37,7 @@ clean:
 hex:  $(PRG).hex
 
 %.hex: %.elf
-	$(OBJCOPY) -j .text -j .data -O ihex $< $@
+	$(OBJCOPY) -R .eeprom -O ihex $< $@
 
 EXTRA_CLEAN_FILES       = *.hex *.bin *.srec
 
