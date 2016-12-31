@@ -1,6 +1,6 @@
 #include <avr/io.h>
-#include <util/delay.h>
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 volatile uint8_t value;
 
@@ -25,19 +25,13 @@ int main(void)
     TCCR1A |= _BV(COM1A1) | _BV(COM1A0);
     TCCR1B |= _BV(CS12) | _BV(WGM12);
     TIMSK1 |= _BV(OCIE1A);
-    OCR1A = 1953;
+    OCR1A = 0x5777;
 
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    sleep_enable();
     // Enable Interupts
     sei();
-
-    while(1);
-    // while(1)
-    // {
-    //     for (uint8_t i=0; i < 0x0F; i=i+2)
-    //     {
-    //         PORTB = i;
-    //         _delay_ms(20);
-    //     }
-    // }
+    while (1) sleep_cpu();
+    sleep_disable();
 
 }
