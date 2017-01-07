@@ -5,7 +5,7 @@ PART_NUMBER    = m328p
 OPTIMIZE       = -O2
 DEV            = /dev/sensors/ftdi_A5025VXV
 PROGRAMMER     = arduino
-F_CPU          = 20000000
+F_CPU          = 16000000
 
 
 DEFS           = -DF_CPU=$(F_CPU)
@@ -38,8 +38,6 @@ hex:  $(PRG).hex
 
 %.hex: %.elf
 	$(OBJCOPY) -R .eeprom -O ihex $< $@
-
-EXTRA_CLEAN_FILES       = *.hex *.bin *.srec
 
 upload:
 	$(AVRDUDE) -p $(PART_NUMBER) -P $(DEV) -c $(PROGRAMMER) -F -u -U flash:w:$(PRG).hex

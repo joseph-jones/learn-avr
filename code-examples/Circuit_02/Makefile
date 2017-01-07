@@ -39,7 +39,5 @@ hex:  $(PRG).hex
 %.hex: %.elf
 	$(OBJCOPY) -j .text -j .data -O ihex $< $@
 
-EXTRA_CLEAN_FILES       = *.hex *.bin *.srec
-
 upload:
 	$(AVRDUDE) -p $(PART_NUMBER) -P $(DEV) -c $(PROGRAMMER) -F -u -U flash:w:$(PRG).hex
